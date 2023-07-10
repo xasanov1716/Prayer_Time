@@ -1,6 +1,7 @@
 import 'package:flutter_defualt_project/data/network/api_provider.dart';
-import 'package:flutter_defualt_project/models/default_model.dart';
-import 'package:flutter_defualt_project/models/universal_response.dart';
+
+import '../models/default_model.dart';
+import '../models/universal_response.dart';
 
 class ApiRepository{
   final ApiProvider apiProvider;
