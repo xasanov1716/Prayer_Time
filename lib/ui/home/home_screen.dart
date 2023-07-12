@@ -18,71 +18,143 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ApiProvider apiProvider = ApiProvider();
   late ApiRepository apiRepository;
+  List<NamazTimeModel> times = [];
   late NamazTimeModel? namazTimeModel;
   bool isLoading = true;
-  String date ="";
-  String titleString="";
+  String date = "";
+  String titleString = "";
+  int hour2 = DateTime.now().hour;
+  int minute2 = DateTime.now().minute;
+  int day = DateTime.now().day;
+  int month = DateTime.now().month;
 
-
-  _getTime(String region) async {
+  _getTimes(String region, String month) async {
     setState(() {
       isLoading = true;
     });
-    namazTimeModel = await apiRepository.getDailyTime(region: region);
-    date+= namazTimeModel!.date.substring(8);
-    date+= convertMonth(namazTimeModel!.date.substring(5,7));
-    date+= "${namazTimeModel!.date.substring(0,4)}-yil";
-    if(!(DateTime.now().hour>=int.parse(namazTimeModel!.timesModel.tongSaharlik.substring(0,2)))){
-      if(!(DateTime.now().minute>=int.parse(namazTimeModel!.timesModel.tongSaharlik.substring(3)))){
-        titleString="Bomdod ${namazTimeModel!.timesModel.tongSaharlik}";
-      }
-    }
-    else if(!(DateTime.now().hour>=int.parse(namazTimeModel!.timesModel.peshin.substring(0,2)))){
-      if(!(DateTime.now().minute>=int.parse(namazTimeModel!.timesModel.peshin.substring(3)))){
-        titleString="Peshin ${namazTimeModel!.timesModel.peshin}";
-      }
-    }
-    else if(!(DateTime.now().hour>=int.parse(namazTimeModel!.timesModel.asr.substring(0,2)))){
-      if(!(DateTime.now().minute>=int.parse(namazTimeModel!.timesModel.asr.substring(3)))){
-        titleString="Asr ${namazTimeModel!.timesModel.asr}";
-      }
-    }
-    else if(!(DateTime.now().hour>=int.parse(namazTimeModel!.timesModel.shomIftor.substring(0,2)))){
-      if(!(DateTime.now().minute>=int.parse(namazTimeModel!.timesModel.shomIftor.substring(3)))){
-        titleString="Shom ${namazTimeModel!.timesModel.shomIftor}";
-      }
-    }
-    else if(!(DateTime.now().hour>=int.parse(namazTimeModel!.timesModel.hufton.substring(0,2)))){
-      if(!(DateTime.now().minute>=int.parse(namazTimeModel!.timesModel.hufton.substring(3)))){
-        titleString="Hufton ${namazTimeModel!.timesModel.hufton}";
-      }
-    }
+    times = await apiRepository.getDailyTime(region: region, month: month);
+    _getTime();
     setState(() {
       isLoading = false;
     });
   }
-  String convertMonth(String month){
-    if(month=="01") {
+
+  _getTime() async {
+    times.forEach((element) {
+      if (element.day == day) {
+        namazTimeModel = element;
+      }
+    });
+    date += namazTimeModel!.day.toString();
+    date += convertMonth(month.toString());
+    date += "${DateTime.now().year}-yil";
+    if (hour2 ==
+        int.parse(namazTimeModel!.timesModel.tongSaharlik.substring(0, 2))) {
+      if (minute2 <
+          int.parse(namazTimeModel!.timesModel.tongSaharlik.substring(3))) {
+        titleString = "Bomdod ${namazTimeModel!.timesModel.tongSaharlik}";
+      } else {
+        titleString = "Quyosh ${namazTimeModel!.timesModel.quyosh}";
+      }
+    } else if (hour2 <
+        int.parse(namazTimeModel!.timesModel.tongSaharlik.substring(0, 2))) {
+      titleString = "Bomdod ${namazTimeModel!.timesModel.tongSaharlik}";
+    } else {
+      if (hour2 ==
+          int.parse(namazTimeModel!.timesModel.quyosh.substring(0, 2))) {
+        if (minute2 <
+            int.parse(namazTimeModel!.timesModel.quyosh.substring(3))) {
+          titleString = "Quyosh ${namazTimeModel!.timesModel.quyosh}";
+        } else {
+          titleString = "Peshin ${namazTimeModel!.timesModel.peshin}";
+        }
+      } else if (hour2 <
+          int.parse(namazTimeModel!.timesModel.quyosh.substring(0, 2))) {
+        titleString = "Quyosh ${namazTimeModel!.timesModel.quyosh}";
+      } else {
+        if (hour2 ==
+            int.parse(namazTimeModel!.timesModel.peshin.substring(0, 2))) {
+          if (minute2 <
+              int.parse(namazTimeModel!.timesModel.peshin.substring(3))) {
+            titleString = "Peshin ${namazTimeModel!.timesModel.peshin}";
+          } else {
+            titleString = "Asr ${namazTimeModel!.timesModel.asr}";
+          }
+        } else if (hour2 <
+            int.parse(namazTimeModel!.timesModel.peshin.substring(0, 2))) {
+          titleString = "Peshin ${namazTimeModel!.timesModel.peshin}";
+        } else {
+          if (hour2 ==
+              int.parse(namazTimeModel!.timesModel.asr.substring(0, 2))) {
+            if (minute2 <
+                int.parse(namazTimeModel!.timesModel.asr.substring(3))) {
+              titleString = "Asr ${namazTimeModel!.timesModel.asr}";
+            } else {
+              titleString = "Shom ${namazTimeModel!.timesModel.shomIftor}";
+            }
+          } else if (hour2 <
+              int.parse(namazTimeModel!.timesModel.asr.substring(0, 2))) {
+            titleString = "Asr ${namazTimeModel!.timesModel.asr}";
+          } else {
+            if (hour2 ==
+                int.parse(
+                    namazTimeModel!.timesModel.shomIftor.substring(0, 2))) {
+              if (minute2 <
+                  int.parse(
+                      namazTimeModel!.timesModel.shomIftor.substring(3))) {
+                titleString = "Shom ${namazTimeModel!.timesModel.shomIftor}";
+              } else {
+                titleString = "Hufton ${namazTimeModel!.timesModel.hufton}";
+              }
+            } else if (hour2 <
+                int.parse(
+                    namazTimeModel!.timesModel.shomIftor.substring(0, 2))) {
+              titleString = "Shom ${namazTimeModel!.timesModel.shomIftor}";
+            } else {
+              if (hour2 ==
+                  int.parse(
+                      namazTimeModel!.timesModel.hufton.substring(0, 2))) {
+                if (minute2 <
+                    int.parse(namazTimeModel!.timesModel.hufton.substring(3))) {
+                  titleString = "Hufton ${namazTimeModel!.timesModel.hufton}";
+                } else {
+                  titleString =
+                      "Bomdod ${namazTimeModel!.timesModel.tongSaharlik}";
+                }
+              } else if (hour2 <
+                  int.parse(
+                      namazTimeModel!.timesModel.hufton.substring(0, 2))) {
+                titleString = "Hufton ${namazTimeModel!.timesModel.hufton}";
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  String convertMonth(String month) {
+    if (month == "1") {
       return " Yanvar ";
-    } else if(month=="02") {
+    } else if (month == "2") {
       return " Fevral ";
-    } else if(month=="03") {
+    } else if (month == "3") {
       return " Mart ";
-    } else if(month=="04") {
+    } else if (month == "4") {
       return " Aprel ";
-    } else if(month=="05") {
+    } else if (month == "5") {
       return " May ";
-    } else if(month=="06") {
+    } else if (month == "6") {
       return " Iyun ";
-    } else if(month=="07") {
+    } else if (month == "7") {
       return " Iyul ";
-    } else if(month=="08") {
+    } else if (month == "8") {
       return " Avgust ";
-    } else if(month=="09") {
+    } else if (month == "9") {
       return " Sentyabr ";
-    } else if(month=="10") {
+    } else if (month == "10") {
       return " Oktabr ";
-    } else if(month=="11") {
+    } else if (month == "11") {
       return " Noyabr ";
     } else {
       return " Dekabr ";
@@ -92,7 +164,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     apiRepository = ApiRepository(apiProvider: apiProvider);
-    _getTime("Toshkent");
+    _getTimes("Toshkent", month.toString());
+    _getTime();
     super.initState();
   }
 
@@ -187,7 +260,22 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 ZoomTapAnimation(
                                   child: const Icon(Icons.arrow_back_ios),
-                                  onTap: () {},
+                                  onTap: () {
+                                    date = "";
+                                    day -= 1;
+                                    if (day == 0) {
+                                      month -= 1;
+                                      _getTimes("Toshkent", month.toString());
+                                      day = times.last.day-1;
+                                      _getTime();
+                                      setState(() {
+                                        date = "";
+                                      });
+                                    } else {
+                                      _getTime();
+                                      setState(() {});
+                                    }
+                                  },
                                 ),
                                 Text(
                                   date,
@@ -198,7 +286,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 ZoomTapAnimation(
                                   child: const Icon(Icons.arrow_forward_ios),
-                                  onTap: () {},
+                                  onTap: () {
+                                    date = "";
+                                    day += 1;
+                                    if (day == times.last.day + 1) {
+                                      month += 1;
+                                      _getTimes("Toshkent", month.toString());
+                                      day = 1;
+                                      _getTime();
+                                      setState(() {
+                                        date = "";
+                                      });
+                                    } else {
+                                      _getTime();
+                                      setState(() {});
+                                    }
+                                  },
                                 ),
                               ],
                             ),

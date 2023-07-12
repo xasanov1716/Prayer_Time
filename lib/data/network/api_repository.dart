@@ -7,11 +7,11 @@ class ApiRepository{
   final ApiProvider apiProvider;
   ApiRepository({required this.apiProvider});
 
-  Future<NamazTimeModel?> getDailyTime({required String region})async{
-    UniversalResponse universalResponse=await apiProvider.getDailyTime(region);
+  Future<List<NamazTimeModel>> getDailyTime({required String region,required String month})async{
+    UniversalResponse universalResponse=await apiProvider.getMonthlyTime(month,region);
     if(universalResponse.error.isEmpty){
-      return universalResponse.data as NamazTimeModel;
+      return universalResponse.data as List<NamazTimeModel>;
     }
-    return null;
+    return [];
   }
 }
