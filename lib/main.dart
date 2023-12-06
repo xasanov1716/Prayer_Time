@@ -7,33 +7,22 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 
 
+import 'data/local/db/storage_repo.dart';
 import 'data/local/service/hive_service.dart';
-import 'data/local/storage_repository/storage_repository.dart';
 import 'data/models/default_model.dart';
 
 
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await EasyLocalization.ensureInitialized();
   await StorageRepository.getInstance();
-
   await Hive.initFlutter();
   Hive.registerAdapter(DefaultModelAdapter());
   await HiveService.openBox();
 
 
   runApp(
-    EasyLocalization(
-      supportedLocales: const [
-        Locale('en', 'EN'),
-        Locale('uz', 'UZ'),
-        Locale('ru', 'RU'),
-      ],
-      fallbackLocale: const Locale('en', 'EN'),
-      path: 'assets/translations',
-      child: const MyApp(),
-    ),
+    const MyApp(),
   );
 }
 
@@ -52,14 +41,10 @@ class MyApp extends StatelessWidget {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: ThemeMode.dark,
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: context.locale,
-          initialRoute: RouteNames.homeScreen,
+          initialRoute: RouteNames.splash,
           onGenerateRoute: AppRoutes.generateRoute,
         );
       },
     );
   }
 }
-

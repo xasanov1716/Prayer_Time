@@ -69,7 +69,6 @@ class StorageRepository {
   }
 
   static Future<bool>? putBool(String key, bool value) {
-    debugPrint('writing $value');
     if (_preferences == null) return null;
     return _preferences!.setBool(key, value);
   }

@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_defualt_project/data/local/db/storage_repo.dart';
 import 'package:flutter_defualt_project/data/models/namaz_time_model.dart';
 import 'package:flutter_defualt_project/data/network/api_provider.dart';
 import 'package:flutter_defualt_project/data/network/api_repository.dart';
 import 'package:flutter_defualt_project/ui/home/widgets/row_items.dart';
 import 'package:flutter_defualt_project/utils/colors.dart';
+import 'package:flutter_defualt_project/utils/constants.dart';
 import 'package:flutter_defualt_project/utils/images.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
+
+import '../../utils/icons.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,20 +24,20 @@ class _HomeScreenState extends State<HomeScreen> {
   final ApiProvider apiProvider = ApiProvider();
   late ApiRepository apiRepository;
   List<NamazTimeModel> times = [];
-  late NamazTimeModel? namazTimeModel;
+  NamazTimeModel? prayerTimeModel;
   bool isLoading = true;
   String date = "";
   String titleString = "";
   int hour2 = DateTime.now().hour;
   int minute2 = DateTime.now().minute;
   int day = DateTime.now().day;
-  int month = DateTime.now().month;
 
-  _getTimes(String region, String month) async {
+  _getTimes() async {
     setState(() {
       isLoading = true;
     });
-    times = await apiRepository.getDailyTime(region: region, month: month);
+    times = await apiRepository.getDailyTime(
+        region: region, month: month.toString());
     _getTime();
     setState(() {
       isLoading = false;
@@ -42,89 +47,90 @@ class _HomeScreenState extends State<HomeScreen> {
   _getTime() async {
     times.forEach((element) {
       if (element.day == day) {
-        namazTimeModel = element;
+        prayerTimeModel = element;
       }
     });
-    date += namazTimeModel!.day.toString();
+    date += prayerTimeModel!.day.toString();
     date += convertMonth(month.toString());
-    date += "${DateTime.now().year}-yil";
+    date += "${DateTime.now().year}-year";
     if (hour2 ==
-        int.parse(namazTimeModel!.timesModel.tongSaharlik.substring(0, 2))) {
+        int.parse(prayerTimeModel!.timesModel.tongSaharlik.substring(0, 2))) {
       if (minute2 <
-          int.parse(namazTimeModel!.timesModel.tongSaharlik.substring(3))) {
-        titleString = "Bomdod ${namazTimeModel!.timesModel.tongSaharlik}";
+          int.parse(prayerTimeModel!.timesModel.tongSaharlik.substring(3))) {
+        titleString = "Fajr ${prayerTimeModel!.timesModel.tongSaharlik}";
       } else {
-        titleString = "Quyosh ${namazTimeModel!.timesModel.quyosh}";
+        titleString = "Shuruk ${prayerTimeModel!.timesModel.quyosh}";
       }
     } else if (hour2 <
-        int.parse(namazTimeModel!.timesModel.tongSaharlik.substring(0, 2))) {
-      titleString = "Bomdod ${namazTimeModel!.timesModel.tongSaharlik}";
+        int.parse(prayerTimeModel!.timesModel.tongSaharlik.substring(0, 2))) {
+      titleString = "Fajr ${prayerTimeModel!.timesModel.tongSaharlik}";
     } else {
       if (hour2 ==
-          int.parse(namazTimeModel!.timesModel.quyosh.substring(0, 2))) {
+          int.parse(prayerTimeModel!.timesModel.quyosh.substring(0, 2))) {
         if (minute2 <
-            int.parse(namazTimeModel!.timesModel.quyosh.substring(3))) {
-          titleString = "Quyosh ${namazTimeModel!.timesModel.quyosh}";
+            int.parse(prayerTimeModel!.timesModel.quyosh.substring(3))) {
+          titleString = "Shuruk ${prayerTimeModel!.timesModel.quyosh}";
         } else {
-          titleString = "Peshin ${namazTimeModel!.timesModel.peshin}";
+          titleString = "Zuhr ${prayerTimeModel!.timesModel.peshin}";
         }
       } else if (hour2 <
-          int.parse(namazTimeModel!.timesModel.quyosh.substring(0, 2))) {
-        titleString = "Quyosh ${namazTimeModel!.timesModel.quyosh}";
+          int.parse(prayerTimeModel!.timesModel.quyosh.substring(0, 2))) {
+        titleString = "Shuruk ${prayerTimeModel!.timesModel.quyosh}";
       } else {
         if (hour2 ==
-            int.parse(namazTimeModel!.timesModel.peshin.substring(0, 2))) {
+            int.parse(prayerTimeModel!.timesModel.peshin.substring(0, 2))) {
           if (minute2 <
-              int.parse(namazTimeModel!.timesModel.peshin.substring(3))) {
-            titleString = "Peshin ${namazTimeModel!.timesModel.peshin}";
+              int.parse(prayerTimeModel!.timesModel.peshin.substring(3))) {
+            titleString = "Zuhr ${prayerTimeModel!.timesModel.peshin}";
           } else {
-            titleString = "Asr ${namazTimeModel!.timesModel.asr}";
+            titleString = "Asr ${prayerTimeModel!.timesModel.asr}";
           }
         } else if (hour2 <
-            int.parse(namazTimeModel!.timesModel.peshin.substring(0, 2))) {
-          titleString = "Peshin ${namazTimeModel!.timesModel.peshin}";
+            int.parse(prayerTimeModel!.timesModel.peshin.substring(0, 2))) {
+          titleString = "Zuhr ${prayerTimeModel!.timesModel.peshin}";
         } else {
           if (hour2 ==
-              int.parse(namazTimeModel!.timesModel.asr.substring(0, 2))) {
+              int.parse(prayerTimeModel!.timesModel.asr.substring(0, 2))) {
             if (minute2 <
-                int.parse(namazTimeModel!.timesModel.asr.substring(3))) {
-              titleString = "Asr ${namazTimeModel!.timesModel.asr}";
+                int.parse(prayerTimeModel!.timesModel.asr.substring(3))) {
+              titleString = "Asr ${prayerTimeModel!.timesModel.asr}";
             } else {
-              titleString = "Shom ${namazTimeModel!.timesModel.shomIftor}";
+              titleString = "Maghreb ${prayerTimeModel!.timesModel.shomIftor}";
             }
           } else if (hour2 <
-              int.parse(namazTimeModel!.timesModel.asr.substring(0, 2))) {
-            titleString = "Asr ${namazTimeModel!.timesModel.asr}";
+              int.parse(prayerTimeModel!.timesModel.asr.substring(0, 2))) {
+            titleString = "Asr ${prayerTimeModel!.timesModel.asr}";
           } else {
             if (hour2 ==
                 int.parse(
-                    namazTimeModel!.timesModel.shomIftor.substring(0, 2))) {
+                    prayerTimeModel!.timesModel.shomIftor.substring(0, 2))) {
               if (minute2 <
                   int.parse(
-                      namazTimeModel!.timesModel.shomIftor.substring(3))) {
-                titleString = "Shom ${namazTimeModel!.timesModel.shomIftor}";
+                      prayerTimeModel!.timesModel.shomIftor.substring(3))) {
+                titleString = "Maghreb ${prayerTimeModel!.timesModel.shomIftor}";
               } else {
-                titleString = "Hufton ${namazTimeModel!.timesModel.hufton}";
+                titleString = "Isha ${prayerTimeModel!.timesModel.hufton}";
               }
             } else if (hour2 <
                 int.parse(
-                    namazTimeModel!.timesModel.shomIftor.substring(0, 2))) {
-              titleString = "Shom ${namazTimeModel!.timesModel.shomIftor}";
+                    prayerTimeModel!.timesModel.shomIftor.substring(0, 2))) {
+              titleString = "Maghreb ${prayerTimeModel!.timesModel.shomIftor}";
             } else {
               if (hour2 ==
                   int.parse(
-                      namazTimeModel!.timesModel.hufton.substring(0, 2))) {
+                      prayerTimeModel!.timesModel.hufton.substring(0, 2))) {
                 if (minute2 <
-                    int.parse(namazTimeModel!.timesModel.hufton.substring(3))) {
-                  titleString = "Hufton ${namazTimeModel!.timesModel.hufton}";
+                    int.parse(
+                        prayerTimeModel!.timesModel.hufton.substring(3))) {
+                  titleString = "Isha ${prayerTimeModel!.timesModel.hufton}";
                 } else {
                   titleString =
-                      "Bomdod ${namazTimeModel!.timesModel.tongSaharlik}";
+                      "Bomdod ${prayerTimeModel!.timesModel.tongSaharlik}";
                 }
               } else if (hour2 <
                   int.parse(
-                      namazTimeModel!.timesModel.hufton.substring(0, 2))) {
-                titleString = "Hufton ${namazTimeModel!.timesModel.hufton}";
+                      prayerTimeModel!.timesModel.hufton.substring(0, 2))) {
+                titleString = "Isha ${prayerTimeModel!.timesModel.hufton}";
               }
             }
           }
@@ -135,36 +141,36 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String convertMonth(String month) {
     if (month == "1") {
-      return " Yanvar ";
+      return " January ";
     } else if (month == "2") {
-      return " Fevral ";
+      return " February ";
     } else if (month == "3") {
-      return " Mart ";
+      return " March ";
     } else if (month == "4") {
-      return " Aprel ";
+      return " April ";
     } else if (month == "5") {
       return " May ";
     } else if (month == "6") {
-      return " Iyun ";
+      return " June ";
     } else if (month == "7") {
-      return " Iyul ";
+      return " July ";
     } else if (month == "8") {
-      return " Avgust ";
+      return " August ";
     } else if (month == "9") {
-      return " Sentyabr ";
+      return " September ";
     } else if (month == "10") {
-      return " Oktabr ";
+      return " October ";
     } else if (month == "11") {
-      return " Noyabr ";
+      return " November ";
     } else {
-      return " Dekabr ";
+      return " December ";
     }
   }
 
   @override
   void initState() {
     apiRepository = ApiRepository(apiProvider: apiProvider);
-    _getTimes("Toshkent", month.toString());
+    _getTimes();
     _getTime();
     super.initState();
   }
@@ -199,11 +205,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               RichText(
                                 text: TextSpan(
-                                  text: "Namoz vaqtlari\n",
+                                  text: "Prayer Times\n",
                                   style: Theme.of(context).textTheme.titleLarge,
                                   children: [
                                     TextSpan(
-                                      text: "\n${namazTimeModel?.region}\n",
+                                      text: "\n${switchRegion(prayerTimeModel?.region)}\n",
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleMedium,
@@ -219,13 +225,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                               ),
-                              ZoomTapAnimation(
-                                child: Image.asset(
-                                  AppImages.notification,
-                                  width: 47.w,
-                                ),
-                                onTap: () {},
-                              )
+                              PopupMenuButton<String>(
+                                  child: SvgPicture.asset(AppIcons.more,height: 50* MediaQuery.of(context).size.height / 812,width: 50 * MediaQuery.of(context).size.width / 375,),
+                                  onSelected: (String result) {
+                                    date = '';
+                                    print('Selected: $result');
+                                    StorageRepository.putString('region', result);
+                                    region = StorageRepository.getString('region');
+                                    _getTimes();
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return List.generate(
+                                        regions.length,
+                                        (index) => PopupMenuItem(
+                                          value: regions[index],
+                                            child: Text(regionsEng[index])));
+                                  }),
                             ],
                           ),
                           SizedBox(
@@ -239,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: 10.h,
                           ),
                           Text(
-                            "Mo'min bilan kofirning farqi namozni tark etishidir.",
+                            "The difference between a believer and an unbeliever is that he abandons prayer.",
                             style: Theme.of(context)
                                 .textTheme
                                 .labelSmall!
@@ -265,8 +280,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     day -= 1;
                                     if (day == 0) {
                                       month -= 1;
-                                      _getTimes("Toshkent", month.toString());
-                                      day = times.last.day-1;
+                                      _getTimes();
+                                      day = times.last.day - 1;
                                       _getTime();
                                       setState(() {
                                         date = "";
@@ -291,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     day += 1;
                                     if (day == times.last.day + 1) {
                                       month += 1;
-                                      _getTimes("Toshkent", month.toString());
+                                      _getTimes();
                                       day = 1;
                                       _getTime();
                                       setState(() {
@@ -310,24 +325,24 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: 60.h,
                           ),
                           RowItems(
-                            title: "Bomdod",
-                            time: "${namazTimeModel?.timesModel.tongSaharlik}",
+                            title: "Fajr",
+                            time: "${prayerTimeModel?.timesModel.tongSaharlik}",
                             img: AppImages.bomdod,
                           ),
                           SizedBox(
                             height: 10.h,
                           ),
                           RowItems(
-                            title: "Quyosh",
-                            time: "${namazTimeModel?.timesModel.quyosh}",
+                            title: "Shuruk",
+                            time: "${prayerTimeModel?.timesModel.quyosh}",
                             img: AppImages.asr,
                           ),
                           SizedBox(
                             height: 10.h,
                           ),
                           RowItems(
-                            title: "Peshin",
-                            time: "${namazTimeModel?.timesModel.peshin}",
+                            title: "Zuhr",
+                            time: "${prayerTimeModel?.timesModel.peshin}",
                             img: AppImages.peshin,
                           ),
                           SizedBox(
@@ -335,23 +350,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           RowItems(
                             title: "Asr",
-                            time: "${namazTimeModel?.timesModel.asr}",
+                            time: "${prayerTimeModel?.timesModel.asr}",
                             img: AppImages.asr,
                           ),
                           SizedBox(
                             height: 10.h,
                           ),
                           RowItems(
-                            title: "Shom",
-                            time: "${namazTimeModel?.timesModel.shomIftor}",
+                            title: "Maghreb",
+                            time: "${prayerTimeModel?.timesModel.shomIftor}",
                             img: AppImages.bomdod,
                           ),
                           SizedBox(
                             height: 10.h,
                           ),
                           RowItems(
-                            title: "Xufton",
-                            time: "${namazTimeModel?.timesModel.hufton}",
+                            title: "Isha",
+                            time: "${prayerTimeModel?.timesModel.hufton}",
                             img: AppImages.peshin,
                           ),
                         ],
